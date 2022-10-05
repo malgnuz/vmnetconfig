@@ -2,6 +2,10 @@
 # This scripts identifies tags and mac addresses of networking interfaces and configure them accordingly.
 # Imports
 import json # to parse metadata json file
+import os
+import gi
+gi.require_version("NM", "1.0")
+from gi.repository import GLib, NM
 
 # Vars
 metadata_file = "meta_data.json.sample" # The input file that contains mac
@@ -14,22 +18,29 @@ config_file = "config.json.sample" # The input file that contains networkin para
 # Definition of class NIC including mac and tag
 class NIC:
     def __init__(self,mac,tag):
-        self.mac = mac
-        self.tag = tag
+        self.mac = mac.upper()
+        self.interface = None
+        self.tag = tag.upper()
         self.ip = None
         self.prefix = None
         self.gw = None
         self.nameserver = None
 
-    def set(self,ip=None,prefix=None,gw=None,nameserver=None):
+    def set_ip_settings(self,ip=None,prefix=None,gw=None,nameserver=None):
         self.ip = ip
         self.prefix = prefix
         self.gw = gw
         self.nameserver = nameserver
 
+    def set_interface(self,interface):
+        self.interface = interface
+
+    def set_connection(self,connection_id):
+        self.id = connection_id
+
     def get(self,all_settings=True):
        if all_settings:
-           print(self.tag,self.mac,self.ip,self.prefix,self.gw,self.nameserver)
+           print(self.id,self.tag,self.interface,self.mac,self.ip,self.prefix,self.gw,self.nameserver)
 
 # A list of nics
 nics = [];
@@ -52,10 +63,16 @@ try:
   devices = input_data["devices"]
   for device in devices:
       for nic in nics:
-          if device["tags"][0] == nic.tag:
-             nic.set(ip=device["ip"],prefix=device["prefix"],gw=device["gateway"],nameserver=device["nameserver"])
+          if device["tags"][0].upper() == nic.tag:
+             nic.set_ip_settings(ip=device["ip"],prefix=device["prefix"],gw=device["gateway"],nameserver=device["nameserver"])
 except IOError:
     print('Error opening input file')
 
-for nic in nics:
-    nic.get()
+client = NM.Client.new(None)
+devices = client.get_devices()
+for device in devices:
+    for nic in nics:
+        if device.get_hw_address() == nic.mac:
+            nic.set_interface(device.get_iface())
+            nic.set_connection(device.get_udi())
+            nic.get()
