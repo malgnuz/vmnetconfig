@@ -72,7 +72,13 @@ client = NM.Client.new(None)
 devices = client.get_devices()
 for device in devices:
     for nic in nics:
-        if device.get_hw_address() == nic.mac:
+        try:
+          if device.get_hw_address() == nic.mac:
             nic.set_interface(device.get_iface())
-            nic.set_connection(device.get_udi())
-            nic.get()
+            nic.set_connection(device.get_active_connection().get_id())
+            new_config = "nmcli con mod "+ "'" + nic.id + "'" + " ipv4.method manual ipv4.addresses " + nic.ip + "/" + nic.prefix + " ipv4.gateway " + nic.gw + " ipv4.dns " + nic.nameserver + " ipv6.method disabled"
+            save_config = "nmcli con up " + "'" + nic.id + "'"
+            os.system(new_config)
+            os.system(save_config)
+        except:
+          print("An error occurred when setting the network configuration")
