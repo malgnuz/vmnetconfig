@@ -8,8 +8,7 @@ gi.require_version("NM", "1.0")
 from gi.repository import GLib, NM
 
 # Vars
-metadata_file = "meta_data.json.sample" # The input file that contains mac
-                                        # address and tag for each device
+metadata_file = "meta_data.json.sample" # The input file that contains mac address and tag for each device
 
 config_file = "config.json.sample" # The input file that contains networkin parameters to be configured in the NIC.
 
