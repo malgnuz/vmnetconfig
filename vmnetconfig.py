@@ -57,6 +57,9 @@ try:
 except IOError:
     print('Error opening input file')
 
+# Parsing network configuration from file.
+# Setting ip,prefix,gw and nameserver to each NIC instance.
+
 try:
   with open(config_file,'r') as input_file:
       input_data = json.load(input_file)
@@ -67,6 +70,9 @@ try:
              nic.set_ip_settings(ip=device["ip"],prefix=device["prefix"],gw=device["gateway"],nameserver=device["nameserver"])
 except IOError:
     print('Error opening input file')
+
+# Mapping NIC instances and NetworkManager connections
+# Modifying the NetworkManager connections accordingly
 
 client = NM.Client.new(None)
 devices = client.get_devices()
