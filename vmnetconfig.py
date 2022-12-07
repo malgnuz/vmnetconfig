@@ -2,7 +2,7 @@
 # This scripts identifies tags and mac addresses of networking interfaces and configure them accordingly.
 # Imports
 import argparse
-import json # to parse metadata json file
+import json
 import os
 import gi
 gi.require_version("NM", "1.0")
